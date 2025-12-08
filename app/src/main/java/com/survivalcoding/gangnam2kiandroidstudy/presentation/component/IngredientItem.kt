@@ -62,9 +62,15 @@ fun IngredientItem(
 @Preview(showBackground = true)
 @Composable
 private fun IngredientItemPreview() {
-    IngredientItem(
-        imageURL = "https://cdn.pixabay.com/photo/2017/10/06/17/17/tomato-2823826_1280.jpg",
-        ingredientName = "Tomatos",
-        ingredientWeight = "200g"
-    )
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center // Box의 자식 요소를 중앙에 배치
+    ) {
+        IngredientItem(
+            imageURL = "https://cdn.pixabay.com/photo/2017/10/06/17/17/tomato-2823826_1280.jpg",
+            ingredientName = "Tomatos",
+            ingredientWeight = "200g"
+        )
+    }
 }
+

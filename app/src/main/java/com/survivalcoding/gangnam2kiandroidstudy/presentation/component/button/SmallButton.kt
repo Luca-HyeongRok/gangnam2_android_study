@@ -1,4 +1,4 @@
-package com.survivalcoding.gangnam2kiandroidstudy.presentation.component
+package com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

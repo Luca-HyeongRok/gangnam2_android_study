@@ -1,4 +1,4 @@
-package com.survivalcoding.gangnam2kiandroidstudy.presentation.component
+package com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
