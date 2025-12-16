@@ -3,6 +3,7 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.component
 import android.graphics.Color.YELLOW
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
@@ -29,38 +29,38 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.survivalcoding.gangnam2kiandroidstudy.R
 import com.survivalcoding.gangnam2kiandroidstudy.model.recipe.Recipe
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppColors
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
 
+
 @Composable
-fun RecipeCard(
+fun SearchRecipeCard(
+    modifier: Modifier = Modifier,
     recipe: Recipe,
-    modifier: Modifier = Modifier
 ) {
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .aspectRatio(315 / 150f)
+            .aspectRatio(1f)
             .clip(RoundedCornerShape(10.dp))
     ) {
         AsyncImage(
             modifier = Modifier
                 .fillMaxSize()
                 .clip(RoundedCornerShape(10.dp)),
+            contentScale = ContentScale.Crop,
             model = if (LocalInspectionMode.current) {
                 ColorDrawable(YELLOW)
             } else {
                 recipe.imageUrl
             },
-            contentDescription = recipe.name,
-            contentScale = ContentScale.Crop,
+            contentDescription = recipe.name
         )
 
         Box(
@@ -101,6 +101,7 @@ fun RecipeCard(
             Text(
                 text = recipe.rating.toString(),
                 style = AppTextStyles.smallerTextRegular.copy(fontSize = 8.sp),
+                modifier = Modifier.size(12.dp)
             )
         }
 
@@ -109,88 +110,45 @@ fun RecipeCard(
                 .fillMaxWidth()
                 .align(Alignment.BottomStart)
                 .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.Bottom
         ) {
-            Column(
-                modifier = Modifier.width(190.dp)
-            ) {
+            Column {
                 Text(
                     text = recipe.name,
-                    style = AppTextStyles.smallTextBold.copy(
-                        color = AppColors.white
+                    style = AppTextStyles.smallerTextBold.copy(
+                        color = AppColors.white,
+                        fontSize = 11.sp
                     ),
-                    maxLines = 2
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
                 )
                 Text(
                     text = "By ${recipe.chef}",
                     style = AppTextStyles.smallerTextRegular.copy(
                         fontSize = 8.sp,
-                        color = AppColors.gray4
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Row(
-                modifier = Modifier
-                    .width(94.dp)
-                    .aspectRatio(94 / 24f),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_outline_timer),
-                    contentDescription = "Cooking Time",
-                    tint = AppColors.gray4,
-                    modifier = Modifier.size(17.dp)
-                )
-
-                Text(
-                    text = recipe.time, // "20 min" 형태 그대로 사용
-                    style = AppTextStyles.smallerTextRegular.copy(
-                        color = AppColors.white
+                        color = AppColors.gray3
                     ),
-                    maxLines = 1,
-                    modifier = Modifier.padding(start = 5.dp, end = 10.dp)
                 )
-
-                Box(
-                    modifier = Modifier
-                        .size(24.dp)
-                        .clip(CircleShape)
-                        .background(AppColors.primary20),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_outline_bookmark_inactive),
-                        contentDescription = "bookmark Recipe",
-                        tint = AppColors.primary80,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
             }
         }
     }
 }
 
-@Preview(showBackground = true)
+@Preview
 @Composable
-private fun RecipeCardPreview() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        RecipeCard(
-            recipe = Recipe(
-                id = 1,
-                category = "Chinese",
-                name = "Traditional spare ribs baked",
-                imageUrl = "https://cdn.pixabay.com/photo/2017/11/10/15/04/steak-2936531_1280.jpg",
-                chef = "Chef John",
-                time = "20 min",
-                rating = 4.0,
-                createdAt = System.currentTimeMillis()
-            )
+private fun SearchRecipeCardPreview() {
+    SearchRecipeCard(
+        recipe = Recipe(
+            id = 1,
+            name = "Traditional spare ribs baked",
+            chef = "Chef John",
+            time = "20 min",
+            category = "Chinese",
+            rating = 4.0,
+            imageUrl = "image",
+            createdAt = System.currentTimeMillis()
         )
-    }
+    )
+
 }

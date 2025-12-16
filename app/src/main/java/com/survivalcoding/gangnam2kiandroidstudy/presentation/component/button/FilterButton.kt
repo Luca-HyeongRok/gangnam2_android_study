@@ -2,6 +2,7 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -22,6 +23,7 @@ import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
 fun FilterButton(
     text: String,
     isSelected: Boolean,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor =
@@ -40,6 +42,7 @@ fun FilterButton(
                 color = AppColors.primary80,
                 shape = RoundedCornerShape(10.dp)
             )
+            .clickable { onClick() }
             .padding(horizontal = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
@@ -58,18 +61,8 @@ fun FilterButton(
 @Preview(showBackground = true)
 @Composable
 private fun FilterButtonPreview() {
-    Row(
-        modifier = Modifier.padding(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        FilterButton(
-            text = "Text",
-            isSelected = false
-        )
-        FilterButton(
-            text = "Text",
-            isSelected = true
-        )
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        FilterButton(text = "All", isSelected = false, onClick = {})
+        FilterButton(text = "All", isSelected = true, onClick = {})
     }
 }

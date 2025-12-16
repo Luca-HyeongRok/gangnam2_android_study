@@ -2,6 +2,7 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -28,6 +29,7 @@ import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
 fun RatingButton(
     text: String,
     isSelected: Boolean,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val backgroundColor =
@@ -48,12 +50,11 @@ fun RatingButton(
                 width = if (!isSelected) 1.dp else 0.dp,
                 color = borderColor,
                 shape = RoundedCornerShape(10.dp)
-            ),
+            )
+            .clickable { onClick() },
         contentAlignment = Alignment.Center
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = text,
                 style = AppTextStyles.smallTextRegular.copy(
@@ -72,16 +73,11 @@ fun RatingButton(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 private fun RatingButtonPreview() {
-    Row(
-        modifier = Modifier.padding(20.dp),
-        horizontalArrangement = Arrangement.spacedBy(15.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        RatingButton(text = "5", isSelected = true)
-        RatingButton(text = "5", isSelected = false)
+    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+        RatingButton(text = "5", isSelected = true, onClick = {})
+        RatingButton(text = "4", isSelected = false, onClick = {})
     }
 }

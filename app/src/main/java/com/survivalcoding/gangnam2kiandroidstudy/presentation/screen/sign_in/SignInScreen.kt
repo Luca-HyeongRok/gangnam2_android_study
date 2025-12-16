@@ -1,4 +1,4 @@
-package com.survivalcoding.gangnam2kiandroidstudy.presentation.sign_in
+package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.sign_in
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
