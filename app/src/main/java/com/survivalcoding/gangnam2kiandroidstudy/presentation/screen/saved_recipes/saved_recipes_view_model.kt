@@ -6,34 +6,56 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.survivalcoding.gangnam2kiandroidstudy.AppApplication
-import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.RecipeRepository
-import com.survivalcoding.gangnam2kiandroidstudy.model.recipe.Recipe
+import com.survivalcoding.gangnam2kiandroidstudy.domain.repository.BookmarkRepository
+import com.survivalcoding.gangnam2kiandroidstudy.domain.use_case.GetSavedRecipesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class SavedRecipesViewModel(
-    private val repository: RecipeRepository
+    private val getSavedRecipesUseCase: GetSavedRecipesUseCase,
+    private val bookmarkRepository: BookmarkRepository, // 북마크 취소용
 ) : ViewModel() {
 
-    private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
-    val recipes: StateFlow<List<Recipe>> = _recipes.asStateFlow()
+    private val _state = MutableStateFlow(SavedRecipeState())
+    val state: StateFlow<SavedRecipeState> = _state.asStateFlow()
 
     init {
         loadSavedRecipes()
     }
 
-    private fun loadSavedRecipes() {
+    fun loadSavedRecipes() {
         viewModelScope.launch {
-            _recipes.value = repository.getSavedRecipes()
+            _state.update { it.copy(isLoading = true) }
+
+            val result = getSavedRecipesUseCase.execute()
+            val recipes = result.getOrElse { emptyList() }
+
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    recipes = recipes
+                )
+            }
+        }
+    }
+
+    fun removeBookmark(id: Int) {
+        viewModelScope.launch {
+            bookmarkRepository.removeSavedRecipeId(id)
+            loadSavedRecipes()
         }
     }
 
     companion object {
         fun factory(application: AppApplication): ViewModelProvider.Factory = viewModelFactory {
             initializer {
-                SavedRecipesViewModel(application.recipeRepository)
+                SavedRecipesViewModel(
+                    getSavedRecipesUseCase = application.getSavedRecipesUseCase,
+                    bookmarkRepository = application.bookmarkRepository,
+                )
             }
         }
     }

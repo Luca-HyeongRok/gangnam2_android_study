@@ -87,11 +87,15 @@ fun HomeScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             SearchInputField(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f),
                 value = "",
                 placeholder = "Search Recipe",
-            ) {
-            }
+                onValueChange = {},
+                readOnly = true,
+                onClick = { onSearchClick()}
+            )
+
             Spacer(modifier = Modifier.width(20.dp))
             FilterBox {
                 onFilterClick()
@@ -122,12 +126,10 @@ fun HomeScreen(
             items(state.filteredRecipes) { recipe ->
                 HomeRecipeCard(
                     recipe = recipe,
-                    isSaved = recipe.isSaved
+                    isSaved = recipe.isSaved,
                 )
             }
-
         }
-
     }
 }
 

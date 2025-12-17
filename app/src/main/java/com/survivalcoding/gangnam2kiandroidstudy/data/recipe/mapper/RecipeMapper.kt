@@ -1,7 +1,7 @@
 package com.survivalcoding.gangnam2kiandroidstudy.data.recipe.mapper
 
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.dto.RecipeDTO
-import com.survivalcoding.gangnam2kiandroidstudy.model.recipe.Recipe
+import com.survivalcoding.gangnam2kiandroidstudy.domain.model.recipe.Recipe
 
 fun RecipeDTO.toModel(): Recipe =
     Recipe(

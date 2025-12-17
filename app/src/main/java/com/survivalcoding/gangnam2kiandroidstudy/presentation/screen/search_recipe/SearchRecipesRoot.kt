@@ -14,7 +14,8 @@ import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.bottomsh
 fun SearchRecipeRoot(
     onBackClick: () -> Unit,
 ) {
-    val app = LocalContext.current.applicationContext as AppApplication
+    val app = LocalContext.current.applicationContext as? AppApplication
+        ?: throw IllegalStateException("Application must be AppApplication")
 
     val viewModel: SearchRecipeViewModel = viewModel(
         factory = SearchRecipeViewModel.factory(app)

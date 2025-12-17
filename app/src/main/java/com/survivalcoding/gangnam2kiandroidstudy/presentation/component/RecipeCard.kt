@@ -3,6 +3,7 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.component
 import android.graphics.Color.YELLOW
 import android.graphics.drawable.ColorDrawable
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,14 +36,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.survivalcoding.gangnam2kiandroidstudy.R
-import com.survivalcoding.gangnam2kiandroidstudy.model.recipe.Recipe
+import com.survivalcoding.gangnam2kiandroidstudy.domain.model.recipe.Recipe
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppColors
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
 
 @Composable
 fun RecipeCard(
     recipe: Recipe,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onBookmarkClick: () -> Unit,
 ) {
     Box(
         modifier = modifier
@@ -158,7 +160,8 @@ fun RecipeCard(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(AppColors.primary20),
+                        .background(AppColors.primary20)
+                        .clickable { onBookmarkClick() },
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -190,7 +193,7 @@ private fun RecipeCardPreview() {
                 time = "20 min",
                 rating = 4.0,
                 createdAt = System.currentTimeMillis()
-            )
+            ), onBookmarkClick = {}
         )
     }
 }

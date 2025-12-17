@@ -6,11 +6,13 @@ import androidx.compose.runtime.Composable
 fun SignInRoot(
     onSignUpClick: () -> Unit,
     onSignInSuccess: () -> Unit,
-) {
+    onForgotPasswordClick: () -> Unit = {},
+    ) {
     SignInScreen(
         onSignInClick = {
             onSignInSuccess()
         },
-        onSignUpClick = onSignUpClick
+        onSignUpClick = onSignUpClick,
+        onForgotPasswordClick = onForgotPasswordClick
     )
 }

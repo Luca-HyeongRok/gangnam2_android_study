@@ -34,7 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.survivalcoding.gangnam2kiandroidstudy.model.recipe.Recipe
+import com.survivalcoding.gangnam2kiandroidstudy.domain.model.recipe.Recipe
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppColors
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
 
@@ -70,7 +70,7 @@ fun SearchRecipeCard(
                     brush = Brush.verticalGradient(
                         colors = listOf(
                             Color.Transparent,
-                            Color.Black.copy(alpha = 1f)
+                            Color.Black.copy(alpha = 0.6f)
                         ),
                         startY = 0f,
                         endY = Float.POSITIVE_INFINITY

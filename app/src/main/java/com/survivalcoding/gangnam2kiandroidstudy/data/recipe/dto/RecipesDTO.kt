@@ -17,8 +17,8 @@ data class RecipeDTO(
     val time: String?,
     val rating: Double?,
     val ingredients: List<RecipeIngredientDTO>?,
-    val createdAt: Long? = System.currentTimeMillis(),
-    val isSaved:Boolean = false,
+    val createdAt: Long = 0L,
+    val isSaved: Boolean = false,
 )
 
 @Serializable

@@ -1,4 +1,4 @@
-package com.survivalcoding.gangnam2kiandroidstudy.model.recipe
+package com.survivalcoding.gangnam2kiandroidstudy.domain.model.recipe
 
 data class Recipe(
     val id: Int,
