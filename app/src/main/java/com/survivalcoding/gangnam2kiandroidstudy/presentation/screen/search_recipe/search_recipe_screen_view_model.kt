@@ -1,20 +1,19 @@
 package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.search_recipe
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import com.survivalcoding.gangnam2kiandroidstudy.AppApplication
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.RecipeRepository
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.bottomsheet.CategoryFilter
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.bottomsheet.TimeFilter
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class SearchRecipeViewModel(
+@HiltViewModel
+class SearchRecipeViewModel @Inject constructor(
     private val repository: RecipeRepository,
 ) : ViewModel() {
 
@@ -84,13 +83,5 @@ class SearchRecipeViewModel(
             filteredRecipes = filtered,
             filteredRecipesText = "${filtered.size} results"
         )
-    }
-
-    companion object {
-        fun factory(application: AppApplication): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                SearchRecipeViewModel(application.recipeRepository)
-            }
-        }
     }
 }

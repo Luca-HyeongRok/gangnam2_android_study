@@ -2,18 +2,11 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_reci
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.survivalcoding.gangnam2kiandroidstudy.AppApplication
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @Composable
 fun SavedRecipesRoot() {
-    val app = LocalContext.current.applicationContext as AppApplication
-
-    val viewModel: SavedRecipesViewModel = viewModel(
-        factory = SavedRecipesViewModel.factory(app)
-    )
-
+    val viewModel: SavedRecipesViewModel = hiltViewModel()
     val state = viewModel.state.collectAsState().value
 
     SavedRecipesScreen(
