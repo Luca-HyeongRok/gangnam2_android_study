@@ -16,6 +16,11 @@ sealed interface SearchRecipeAction {
     // 필터 적용
     object ApplyFilter : SearchRecipeAction
 
+    // 필터 취소
+    data class CancelFilter(
+        val filterState: FilterSearchState
+    ) : SearchRecipeAction
+
     // 뒤로가기
     object ClickBack : SearchRecipeAction
 }

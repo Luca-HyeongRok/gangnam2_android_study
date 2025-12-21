@@ -23,12 +23,19 @@ import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.SearchIn
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.card.SearchRecipeCard
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppColors
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
+import com.survivalcoding.gangnam2kiandroidstudy.BuildConfig
 
 @Composable
 fun SearchRecipeScreen(
     state: SearchRecipeState,
     onAction: (SearchRecipeAction) -> Unit,
 ) {
+    val title = if (BuildConfig.ENV_NAME == "prod") {
+        "Search recipe"
+    } else {
+        "Search recipe (${BuildConfig.ENV_NAME})"
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         containerColor = AppColors.white
@@ -63,7 +70,7 @@ fun SearchRecipeScreen(
                 Spacer(modifier = Modifier.width(69.dp))
 
                 Text(
-                    text = "Search recipe",
+                    text = title,
                     style = AppTextStyles.mediumTextBold.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 18.sp
@@ -96,7 +103,7 @@ fun SearchRecipeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            /* ---------- Result Info ---------- */
+            // 필터 결과
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -115,7 +122,7 @@ fun SearchRecipeScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            /* ---------- Recipe Grid ---------- */
+            // 서치 레시피 카드
             LazyVerticalGrid(
                 modifier = Modifier.fillMaxWidth(),
                 columns = GridCells.Fixed(2),
