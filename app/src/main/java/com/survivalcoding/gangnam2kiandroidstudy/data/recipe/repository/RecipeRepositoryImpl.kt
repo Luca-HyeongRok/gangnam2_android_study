@@ -3,6 +3,7 @@ package com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.datasource.RecipeDataSource
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.mapper.toModel
 import com.survivalcoding.gangnam2kiandroidstudy.domain.model.recipe.Recipe
+import com.survivalcoding.gangnam2kiandroidstudy.domain.repository.RecipeRepository
 
 class RecipeRepositoryImpl(
     private val dataSource: RecipeDataSource

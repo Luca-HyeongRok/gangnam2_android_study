@@ -5,16 +5,24 @@ import com.survivalcoding.gangnam2kiandroidstudy.domain.repository.BookmarkRepos
 import com.survivalcoding.gangnam2kiandroidstudy.domain.repository.SavedRecipesRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flow
 
 class GetSavedRecipesUseCase(
     private val bookmarkRepository: BookmarkRepository,
     private val savedRecipesRepository: SavedRecipesRepository,
 ) {
     fun execute(): Flow<Result<List<Recipe>>> {
-        return bookmarkRepository.getBookmarkedRecipeIds().flatMapLatest { ids ->
-            flowOf(Result.success(savedRecipesRepository.getRecipesByIds(ids)))
-        }
+        return bookmarkRepository.getBookmarkedRecipeIds()
+            .flatMapLatest { ids ->
+                flow {
+                    try {
+                        val recipes = savedRecipesRepository.getRecipesByIds(ids)
+                        emit(Result.success(recipes))
+                    } catch (e: Exception) {
+                        emit(Result.failure(e))
+                    }
+                }
+            }
     }
 }
 

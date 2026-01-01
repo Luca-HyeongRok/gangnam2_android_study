@@ -1,4 +1,4 @@
-package com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository
+package com.survivalcoding.gangnam2kiandroidstudy.domain.repository
 
 import com.survivalcoding.gangnam2kiandroidstudy.domain.model.recipe.Recipe
 

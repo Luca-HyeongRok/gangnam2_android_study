@@ -27,30 +27,42 @@ fun NavigationRoot(
         if (deepLinkUri == null) return@LaunchedEffect
 
         val uri = deepLinkUri.toUri()
+        val host = uri.host
+        val path = uri.path
 
-        if (uri.host == "recipes" || uri.host == "luca-food.web.app") {
-            val path = uri.path
-            if (path != null) {
-                when {
-                    path == "/recipes/saved" -> {
-                        backStack.clear()
-                        backStack.add(Route.Main(startTab = Route.SavedRecipes))
-                    }
+        when {
+            host == "luca-food.web.app" && path == "/recipes/saved" -> {
+                backStack.clear()
+                backStack.add(Route.Main(startTab = Route.SavedRecipes))
+            }
 
-                    path.startsWith("/recipes/detail/") -> {
-                        val id = uri.pathSegments.getOrNull(2)?.toIntOrNull()
-                        if (id != null) {
-                            backStack.clear()
-                            backStack.add(Route.Main())
-                            backStack.add(Route.RecipeDetail(id))
-                        }
-                    }
+            host == "luca-food.web.app" && path?.startsWith("/recipes/detail/") == true -> {
+                val id = uri.pathSegments.getOrNull(2)?.toIntOrNull()
+                if (id != null) {
+                    backStack.clear()
+                    backStack.add(Route.Main())
+                    backStack.add(Route.RecipeDetail(id))
+                }
+            }
+
+            host == "recipes" && path == "/saved" -> {
+                backStack.clear()
+                backStack.add(Route.Main(startTab = Route.SavedRecipes))
+            }
+
+            host == "recipes" && path?.startsWith("/detail/") == true -> {
+                val id = uri.lastPathSegment?.toIntOrNull()
+                if (id != null) {
+                    backStack.clear()
+                    backStack.add(Route.Main())
+                    backStack.add(Route.RecipeDetail(id))
                 }
             }
         }
 
         onDeepLinkHandled()
     }
+
 
     fun reset(route: Route) {
         backStack.clear()

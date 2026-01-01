@@ -10,7 +10,7 @@ import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.network.NetworkMoni
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.ClipBoardRepositoryImpl
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.IngredientRepositoryImpl
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.ProcedureRepositoryImpl
-import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.RecipeRepository
+import com.survivalcoding.gangnam2kiandroidstudy.domain.repository.RecipeRepository
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.RecipeRepositoryImpl
 import com.survivalcoding.gangnam2kiandroidstudy.data.recipe.repository.SavedRecipesRepositoryImpl
 import com.survivalcoding.gangnam2kiandroidstudy.domain.network.NetworkMonitor
