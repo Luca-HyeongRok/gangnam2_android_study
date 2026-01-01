@@ -1,12 +1,13 @@
 [versions]
 agp = "8.9.1"
-kotlin = "2.2.0"
+kotlin = "2.0.21"
+
+ksp = "2.0.21-1.0.25"
 
 coreKtx = "1.17.0"
 lifecycle = "2.10.0"
 activityCompose = "1.12.0"
 
-# Compose BOM (이 버전만 관리)
 composeBom = "2024.02.02"
 
 nav3 = "1.0.0"
@@ -18,12 +19,9 @@ junit = "4.13.2"
 junitExt = "1.3.0"
 espresso = "3.7.0"
 
-coil = "3.3.0"
+coil = "3.2.0"
 
-# Hilt / KSP
 hilt = "2.51.1"
-
-# hilt-navigation-compose
 hiltNavigationCompose = "1.3.0"
 
 materialIconsExtended = "1.7.8"
@@ -32,6 +30,7 @@ navigationCompose = "2.9.6"
 coroutines = "1.7.3"
 turbine = "1.0.0"
 truth = "1.1.3"
+
 room = "2.6.1"
 
 
@@ -47,7 +46,6 @@ androidx-activity-compose = { group = "androidx.activity", name = "activity-comp
 # Compose BOM
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
 
-# Compose libraries
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -68,7 +66,7 @@ androidx-material3-adaptive-navigation3 = { group = "androidx.compose.material3.
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerialization" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerialization" }
 
-# Coil 3
+# Coil
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 
@@ -99,3 +97,4 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
