@@ -20,11 +20,48 @@
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Gangnam2kiAndroidStudy">
+
+            <!-- ① 런처 -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- ② 커스텀 딥링크 : myapp://recipes/saved -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="myapp"
+                    android:host="recipes"
+                    android:path="/saved" />
+            </intent-filter>
+
+            <!-- ③ 커스텀 딥링크 : myapp://recipes/detail/{id} -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="myapp"
+                    android:host="recipes"
+                    android:pathPrefix="/detail" />
+            </intent-filter>
+
+            <!-- ④ 앱링크(App Link) : https://luca-food.web.app/recipes/... -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data
+                    android:scheme="https"
+                    android:host="luca-food.web.app"
+                    android:pathPrefix="/recipes" />
+            </intent-filter>
+
         </activity>
 
     </application>

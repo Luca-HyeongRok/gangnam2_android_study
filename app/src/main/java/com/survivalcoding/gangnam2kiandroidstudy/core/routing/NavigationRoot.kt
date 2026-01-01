@@ -1,7 +1,9 @@
 package com.survivalcoding.gangnam2kiandroidstudy.core.routing
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.core.net.toUri
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -16,8 +18,39 @@ import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.splash.Spla
 @Composable
 fun NavigationRoot(
     modifier: Modifier = Modifier,
+    deepLinkUri: String? = null,
+    onDeepLinkHandled: () -> Unit = {},
 ) {
     val backStack = rememberNavBackStack(Route.Splash)
+
+    LaunchedEffect(deepLinkUri) {
+        if (deepLinkUri == null) return@LaunchedEffect
+
+        val uri = deepLinkUri.toUri()
+
+        if (uri.host == "recipes" || uri.host == "luca-food.web.app") {
+            val path = uri.path
+            if (path != null) {
+                when {
+                    path == "/recipes/saved" -> {
+                        backStack.clear()
+                        backStack.add(Route.Main(startTab = Route.SavedRecipes))
+                    }
+
+                    path.startsWith("/recipes/detail/") -> {
+                        val id = uri.pathSegments.getOrNull(2)?.toIntOrNull()
+                        if (id != null) {
+                            backStack.clear()
+                            backStack.add(Route.Main())
+                            backStack.add(Route.RecipeDetail(id))
+                        }
+                    }
+                }
+            }
+        }
+
+        onDeepLinkHandled()
+    }
 
     fun reset(route: Route) {
         backStack.clear()
@@ -52,7 +85,7 @@ fun NavigationRoot(
             entry<Route.SignIn> {
                 SignInRoot(
                     onSignUpClick = { reset(Route.SignUp) },
-                    onSignInSuccess = { reset(Route.Main) }
+                    onSignInSuccess = { reset(Route.Main()) }
                 )
             }
 
@@ -63,21 +96,18 @@ fun NavigationRoot(
                 )
             }
 
-            // Main 탭 Root (Home / Saved / Profile 등은 MainRoot 내부에서 관리)
-            entry<Route.Main> {
+            entry<Route.Main> { route ->
                 MainRoot(
+                    route = route,
                     onOpenSearch = { push(Route.SearchRecipes) },
-                    onOpenRecipeDetail = { recipeId ->
-                        push(Route.RecipeDetail(recipeId))
+                    onOpenRecipeDetail = { id ->
+                        push(Route.RecipeDetail(id))
                     }
                 )
             }
 
-            // Search (Top-level)
             entry<Route.SearchRecipes> {
-                SearchRecipeRoot(
-                    onBack = { pop() },
-                )
+                SearchRecipeRoot(onBack = { pop() })
             }
 
             entry<Route.RecipeDetail> { route ->

@@ -3,6 +3,7 @@ package com.survivalcoding.gangnam2kiandroidstudy.core.routing
 import androidx.navigation3.runtime.NavKey
 import kotlinx.serialization.Serializable
 
+@Serializable
 sealed interface Route : NavKey {
     @Serializable
     data object Splash : Route
@@ -13,8 +14,9 @@ sealed interface Route : NavKey {
     @Serializable
     data object SignUp : Route
 
+    // data object에서 data class로 변경하여 시작 탭 정보를 담을 수 있도록 함
     @Serializable
-    data object Main : Route
+    data class Main(val startTab: Route = Home) : Route
 
     @Serializable
     data object Home : Route
@@ -33,5 +35,4 @@ sealed interface Route : NavKey {
 
     @Serializable
     data class RecipeDetail(val recipeId: Int) : Route
-
 }

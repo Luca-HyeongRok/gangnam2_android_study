@@ -1,0 +1,20 @@
+All unit tests, including those in `SearchRecipeViewModelTest.kt`, are now passing.
+
+The issue with `BigButtonTest.kt` has been resolved. It was an instrumented test (UI test) but was located in the unit test directory, causing it to fail when run with unit tests. I have moved it to the correct directory for instrumented tests (`app/src/androidTest/...`).
+
+Here is how you can run the different types of tests:
+
+**1. To run all unit tests (like `SearchRecipeViewModelTest.kt`):**
+This does not require a connected device or emulator.
+```
+./gradlew testDevDebugUnitTest
+```
+This task now completes successfully.
+
+**2. To run the instrumented UI test (`BigButtonTest.kt`):**
+This requires a connected Android device or an active emulator.
+```
+./gradlew connectedDevDebugAndroidTest
+```
+
+This completes the request to fix both failing test scenarios.
