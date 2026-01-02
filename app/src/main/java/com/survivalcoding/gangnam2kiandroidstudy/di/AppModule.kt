@@ -33,7 +33,11 @@ import org.koin.dsl.module
 
 val appModule = module {
 
-    includes(bookmarkModule) // Include the new bookmark module
+    includes(
+        bookmarkModule,
+        viewModelModule,
+    ) // Include the new bookmark module
+
 
     // Network
     single {

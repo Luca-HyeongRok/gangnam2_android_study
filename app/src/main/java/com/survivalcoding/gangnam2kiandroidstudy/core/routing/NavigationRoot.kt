@@ -97,13 +97,14 @@ fun NavigationRoot(
             entry<Route.SignIn> {
                 SignInRoot(
                     onSignUpClick = { reset(Route.SignUp) },
-                    onSignInSuccess = { reset(Route.Main()) }
+                    onSignInSuccess = { reset(Route.Main()) },
+                    onForgotPasswordClick = { reset(Route.SignIn) } // Updated
                 )
             }
 
             entry<Route.SignUp> {
                 SignUpRoot(
-                    onBackToSignIn = { reset(Route.SignIn) },
+                    onLoginClick = { reset(Route.SignIn) }, // Updated
                     onSignUpSuccess = { reset(Route.SignIn) }
                 )
             }

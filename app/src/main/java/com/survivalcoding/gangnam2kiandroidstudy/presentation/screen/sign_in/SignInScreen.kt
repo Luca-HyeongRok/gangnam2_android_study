@@ -1,9 +1,17 @@
 package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.sign_in
 
+import android.app.Activity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -20,121 +28,178 @@ import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.InputFie
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button.BigButton
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppColors
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
+import kotlinx.coroutines.flow.collectLatest
+import org.koin.androidx.compose.koinViewModel
 
 
 @Composable
 fun SignInScreen(
-    onSignInClick: () -> Unit = {},
+    onSignInSuccess: () -> Unit = {},
     onForgotPasswordClick: () -> Unit = {},
     onSignUpClick: () -> Unit = {},
 ) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+    val viewModel: SignInViewModel = koinViewModel()
+    val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier.padding(start = 30.dp, top = 94.dp)
-        ) {
-            Text(
-                text = "Hello,",
-                style = AppTextStyles.headerTextBold,
-                color = AppColors.black,
-            )
-            Text(
-                text = "Welcome Back!",
-                style = AppTextStyles.largeTextRegular,
-                color = AppColors.gray2,
-            )
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        onResult = { result ->
+            if (result.resultCode == Activity.RESULT_OK) {
+                result.data?.let {
+                    viewModel.onSignInResult(it)
+                }
+            }
         }
+    )
 
-        Spacer(modifier = Modifier.height(57.dp))
+    LaunchedEffect(state.signInIntentSender) {
+        state.signInIntentSender?.let {
+            launcher.launch(
+                IntentSenderRequest.Builder(it).build()
+            )
+            viewModel.resetSignInIntentSender()
+        }
+    }
 
-        Column(
+    LaunchedEffect(viewModel.action) {
+        viewModel.action.collectLatest { action ->
+            when (action) {
+                is SignInAction.NavigateToMain -> onSignInSuccess()
+                is SignInAction.NavigateToSignUp -> onSignUpClick()
+                is SignInAction.NavigateToForgotPassword -> onForgotPasswordClick()
+            }
+        }
+    }
+
+    LaunchedEffect(state.error) {
+        state.error?.let {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
+
+
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { paddingValues ->
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 30.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .padding(paddingValues),
+            contentAlignment = Alignment.Center
         ) {
-
-            InputField(
-                label = "Email",
-                text = email,
-                placeholder = "Enter email",
-                onValueChange = { email = it },
-            )
-            Spacer(modifier = Modifier.height(30.dp))
-
-            InputField(
-                label = "Enter Password",
-                text = password,
-                placeholder = "Enter password",
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                ),
-                visualTransformation = PasswordVisualTransformation(),
-                onValueChange = { password = it },
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Forgot Password?",
-                style = AppTextStyles.smallTextRegular.copy(color = AppColors.secondary100),
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 10.dp)
-                    .clickable { onForgotPasswordClick() }
-            )
-
-            Spacer(modifier = Modifier.height(25.dp))
-
-            BigButton(
-                text = "Sign In",
-                modifier = Modifier.fillMaxWidth(),
-                onClick = onSignInClick
-            )
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Row(
-                modifier = Modifier
-                    .padding(horizontal = 60.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                HorizontalDivider(
-                    modifier = Modifier.width(50.dp),
-                    color = AppColors.gray4
-                )
-                Text(
-                    text = "Or Sign in With",
-                    modifier = Modifier.padding(horizontal = 7.dp),
-                    style = AppTextStyles.smallerTextBold.copy(color = AppColors.gray4)
-                )
-                HorizontalDivider(
-                    modifier = Modifier.width(50.dp),
-                    color = AppColors.gray4
-                )
+                Column(
+                    modifier = Modifier.padding(start = 30.dp, top = 94.dp)
+                ) {
+                    Text(
+                        text = "Hello,",
+                        style = AppTextStyles.headerTextBold,
+                        color = AppColors.black,
+                    )
+                    Text(
+                        text = "Welcome Back!",
+                        style = AppTextStyles.largeTextRegular,
+                        color = AppColors.gray2,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(57.dp))
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+
+                    InputField(
+                        label = "Email",
+                        text = state.email,
+                        placeholder = "Enter email",
+                        onValueChange = { viewModel.onEvent(SignInEvent.OnEmailChanged(it)) },
+                    )
+                    Spacer(modifier = Modifier.height(30.dp))
+
+                    InputField(
+                        label = "Enter Password",
+                        text = state.password,
+                        placeholder = "Enter password",
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                        ),
+                        visualTransformation = PasswordVisualTransformation(),
+                        onValueChange = { viewModel.onEvent(SignInEvent.OnPasswordChanged(it)) },
+                    )
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Text(
+                        text = "Forgot Password?",
+                        style = AppTextStyles.smallTextRegular.copy(color = AppColors.secondary100),
+                        modifier = Modifier
+                            .align(Alignment.Start)
+                            .padding(start = 10.dp)
+                            .clickable { viewModel.navigateToForgotPassword() }
+                    )
+
+                    Spacer(modifier = Modifier.height(25.dp))
+
+                    BigButton(
+                        text = "Sign In",
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = { viewModel.onEvent(SignInEvent.OnSignInClicked) }
+                    )
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .padding(horizontal = 60.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        HorizontalDivider(
+                            modifier = Modifier.width(50.dp),
+                            color = AppColors.gray4
+                        )
+                        Text(
+                            text = "Or Sign in With",
+                            modifier = Modifier.padding(horizontal = 7.dp),
+                            style = AppTextStyles.smallerTextBold.copy(color = AppColors.gray4)
+                        )
+                        HorizontalDivider(
+                            modifier = Modifier.width(50.dp),
+                            color = AppColors.gray4
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
+
+                    SocialIconButtonsRow(
+                        onGoogleClick = { viewModel.onEvent(SignInEvent.OnGoogleSignInClicked) }
+                    )
+
+                    Spacer(modifier = Modifier.height(55.dp))
+
+                    Text(
+                        text = buildAnnotatedString {
+                            append("Don't have an account? ")
+                            withStyle(
+                                style = SpanStyle(color = AppColors.secondary100)
+                            ) {
+                                append("Sign up")
+                            }
+                        },
+                        style = AppTextStyles.smallerTextRegular,
+                        modifier = Modifier.clickable { viewModel.navigateToSignUp() }
+                    )
+                }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
-
-            SocialIconButtonsRow()
-
-            Spacer(modifier = Modifier.height(55.dp))
-
-            Text(
-                text = buildAnnotatedString {
-                    append("Don't have an account? ")
-                    withStyle(
-                        style = SpanStyle(color = AppColors.secondary100)
-                    ) {
-                        append("Sign up")
-                    }
-                },
-                style = AppTextStyles.smallerTextRegular,
-                modifier = Modifier.clickable { onSignUpClick() }
-            )
+            if (state.isLoading) {
+                CircularProgressIndicator()
+            }
         }
     }
 }

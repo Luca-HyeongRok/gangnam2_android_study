@@ -86,6 +86,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     // Add the dependency for the Firebase Authentication library
     implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(libs.play.services.auth)
 
     // 기본
     implementation(libs.androidx.core.ktx)
