@@ -1,6 +1,5 @@
 package com.survivalcoding.gangnam2kiandroidstudy.di
 
-import com.google.android.gms.auth.api.identity.Identity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
@@ -22,13 +21,8 @@ val authModule = module {
     }
 
     single {
-        Identity.getSignInClient(androidContext())
-    }
-
-    single {
         GoogleAuthUiClient(
-            context = androidContext(),
-            oneTapClient = get()
+            context = androidContext()
         )
     }
 

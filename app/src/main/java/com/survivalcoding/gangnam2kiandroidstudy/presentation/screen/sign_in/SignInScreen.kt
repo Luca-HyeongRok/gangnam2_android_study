@@ -2,7 +2,6 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.sign_in
 
 import android.app.Activity
 import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +22,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.survivalcoding.gangnam2kiandroidstudy.presentation.auth.GoogleAuthUiClient
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button.SocialIconButtonsRow
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.InputField
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.component.button.BigButton
@@ -30,6 +30,7 @@ import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppColors
 import com.survivalcoding.gangnam2kiandroidstudy.ui.theme.AppTextStyles
 import kotlinx.coroutines.flow.collectLatest
 import org.koin.androidx.compose.koinViewModel
+import org.koin.compose.koinInject
 
 
 @Composable
@@ -42,23 +43,27 @@ fun SignInScreen(
     val state by viewModel.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Koin을 통해 GoogleAuthUiClient 주입
+    val googleAuthUiClient: GoogleAuthUiClient = koinInject()
+
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartIntentSenderForResult(),
+        contract = ActivityResultContracts.StartActivityForResult(),
         onResult = { result ->
             if (result.resultCode == Activity.RESULT_OK) {
                 result.data?.let {
-                    viewModel.onSignInResult(it)
+                    viewModel.onEvent(SignInEvent.OnSignInResult(it))
                 }
+            } else {
+                // 사용자가 로그인 창을 닫는 등의 케이스 처리
+                viewModel.onEvent(SignInEvent.OnSignInLaunched) // 로딩 중 상태 해제
             }
         }
     )
 
-    LaunchedEffect(state.signInIntentSender) {
-        state.signInIntentSender?.let {
-            launcher.launch(
-                IntentSenderRequest.Builder(it).build()
-            )
-            viewModel.resetSignInIntentSender()
+    LaunchedEffect(state.shouldLaunchSignIn) {
+        if (state.shouldLaunchSignIn) {
+            launcher.launch(googleAuthUiClient.getSignInIntent())
+            viewModel.onEvent(SignInEvent.OnSignInLaunched)
         }
     }
 
