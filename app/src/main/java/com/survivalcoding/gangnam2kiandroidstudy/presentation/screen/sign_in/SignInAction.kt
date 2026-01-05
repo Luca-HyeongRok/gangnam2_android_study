@@ -1,7 +1,9 @@
 package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.sign_in
 
 sealed interface SignInAction {
-    data object NavigateToMain : SignInAction
-    data object NavigateToSignUp : SignInAction
-    data object NavigateToForgotPassword : SignInAction
+    data class OnEmailChange(val email: String) : SignInAction
+    data class OnPasswordChange(val password: String) : SignInAction
+    object OnSignUpClick : SignInAction
+    object OnSignInClick : SignInAction
+    object OnGoogleClick : SignInAction
 }

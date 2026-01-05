@@ -61,7 +61,9 @@ fun RecipeDetailScreen(
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
-        Box(modifier = modifier.fillMaxSize().padding(paddingValues)) {
+        Box(modifier = modifier
+            .fillMaxSize()
+            .padding(paddingValues)) {
             Column(
                 modifier = modifier
                     .fillMaxSize()
@@ -186,7 +188,8 @@ fun RecipeDetailScreen(
 
                     SmallButton(
                         text = "Follow",
-                        modifier = Modifier.width(85.dp)
+                        modifier = Modifier.width(85.dp),
+                        onClick = {}
                     )
                 }
 

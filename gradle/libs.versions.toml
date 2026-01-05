@@ -33,6 +33,7 @@ truth = "1.1.3"
 
 room = "2.6.1"
 playServicesAuth = "21.0.0"
+googleid = "1.1.1"
 
 
 [libraries]
@@ -93,6 +94,7 @@ androidx-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "playServicesAuth" }
+googleid = { group = "com.google.android.libraries.identity.googleid", name = "googleid", version.ref = "googleid" }
 
 
 [plugins]

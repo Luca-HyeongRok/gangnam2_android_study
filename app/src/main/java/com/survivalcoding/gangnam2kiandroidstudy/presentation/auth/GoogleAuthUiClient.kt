@@ -1,75 +1,38 @@
 package com.survivalcoding.gangnam2kiandroidstudy.presentation.auth
 
 import android.content.Context
-import android.content.Intent
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
-import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.ktx.Firebase
+import androidx.credentials.CredentialManager
+import androidx.credentials.GetCredentialRequest
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.survivalcoding.gangnam2kiandroidstudy.R
-import com.survivalcoding.gangnam2kiandroidstudy.domain.model.SignInResult
-import com.survivalcoding.gangnam2kiandroidstudy.domain.model.UserData
-import kotlinx.coroutines.tasks.await
-import java.util.concurrent.CancellationException
 
 class GoogleAuthUiClient(
     private val context: Context
 ) {
-    private val auth = Firebase.auth
 
-    // ✅ GoogleSignInClient 만 사용
-    private val googleSignInClient: GoogleSignInClient = run {
-        val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(context.getString(R.string.default_web_client_id))
-            .requestEmail()
-            .build()
-        GoogleSignIn.getClient(context, gso)
-    }
+    private val credentialManager = CredentialManager.create(context)
 
-    // ✅ signInIntent를 직접 반환
-    fun getSignInIntent(): Intent {
-        return googleSignInClient.signInIntent
-    }
+    private val googleIdOption = GetGoogleIdOption.Builder()
+        .setServerClientId(context.getString(R.string.default_web_client_id))
+        .setFilterByAuthorizedAccounts(false)
+        .build()
 
-    // ✅ Intent 결과로부터 Firebase 인증 처리
-    suspend fun signInWithIntent(intent: Intent): SignInResult {
-        return try {
-            val signInAccount = GoogleSignIn.getSignedInAccountFromIntent(intent).await()
-            val idToken = signInAccount.idToken
+    private val request = GetCredentialRequest.Builder()
+        .addCredentialOption(googleIdOption)
+        .build()
 
-            if (idToken.isNullOrBlank()) {
-                return SignInResult(data = null, errorMessage = "Google ID Token is null")
-            }
+    suspend fun getIdToken(): String {
+        val result = credentialManager.getCredential(
+            context = context,
+            request = request
+        )
 
-            val credential = GoogleAuthProvider.getCredential(idToken, null)
-            val user = auth.signInWithCredential(credential).await().user
-
-            SignInResult(
-                data = user?.let {
-                    UserData(
-                        userId = it.uid,
-                        username = it.displayName,
-                        profilePictureUrl = it.photoUrl?.toString()
-                    )
-                },
-                errorMessage = null
-            )
-        } catch (e: Exception) {
-            e.printStackTrace()
-            if (e is CancellationException) throw e
-            SignInResult(data = null, errorMessage = e.message)
+        val credential = result.credential
+        if (credential !is GoogleIdTokenCredential) {
+            throw IllegalStateException("Invalid Google credential")
         }
-    }
 
-    suspend fun signOut() {
-        try {
-            googleSignInClient.signOut().await() // ✅ GoogleSignInClient 로 로그아웃
-            auth.signOut()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            if (e is CancellationException) throw e
-        }
+        return credential.idToken
     }
 }

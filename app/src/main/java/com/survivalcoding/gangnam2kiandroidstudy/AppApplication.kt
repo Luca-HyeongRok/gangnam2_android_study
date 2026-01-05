@@ -1,10 +1,12 @@
 package com.survivalcoding.gangnam2kiandroidstudy
 
 import android.app.Application
-
+import com.google.firebase.auth.FirebaseAuth
+import com.survivalcoding.gangnam2kiandroidstudy.auth.AuthStateHolder
 import com.survivalcoding.gangnam2kiandroidstudy.di.appModule
+import com.survivalcoding.gangnam2kiandroidstudy.di.authModule
 import com.survivalcoding.gangnam2kiandroidstudy.di.networkModule
-import com.survivalcoding.gangnam2kiandroidstudy.di.authModule // Import authModule
+import org.koin.android.ext.android.getKoin
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -20,8 +22,12 @@ class AppApplication : Application() {
             modules(
                 appModule,
                 networkModule,
-                authModule, // Add authModule to the list
+                authModule,
             )
         }
+
+        val firebaseAuth: FirebaseAuth = getKoin().get()
+        AuthStateHolder.init(firebaseAuth)
     }
 }
+

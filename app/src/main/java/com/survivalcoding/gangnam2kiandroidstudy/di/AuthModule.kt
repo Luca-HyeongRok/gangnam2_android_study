@@ -11,10 +11,10 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 
 val authModule = module {
+
     single<FirebaseAuth> {
         val firebaseAuth = Firebase.auth
         if (BuildConfig.FLAVOR == "dev" || BuildConfig.FLAVOR == "qa") {
-            // Use Firebase Emulator for dev and qa flavors
             firebaseAuth.useEmulator("10.0.2.2", 9099)
         }
         firebaseAuth
@@ -22,9 +22,11 @@ val authModule = module {
 
     single {
         GoogleAuthUiClient(
-            context = androidContext()
+            context = androidContext(),
         )
     }
 
-    single<AuthRepository> { AuthRepositoryImpl(get()) }
+    single<AuthRepository> {
+        AuthRepositoryImpl(get())
+    }
 }

@@ -21,10 +21,10 @@ class MainActivity : ComponentActivity() {
         this.deepLinkUri = intent.dataString
 
         setContent {
-            MyApp(
-                deepLinkUri = this.deepLinkUri,
-                onDeepLinkHandled = { this.deepLinkUri = null }
-            )
+                MyApp(
+                    deepLinkUri = deepLinkUri,
+                    onDeepLinkHandled = { deepLinkUri = null }
+                )
         }
     }
 

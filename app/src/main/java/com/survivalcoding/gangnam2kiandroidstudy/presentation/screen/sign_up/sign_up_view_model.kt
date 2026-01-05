@@ -41,7 +41,8 @@ class SignUpViewModel(
 
         _state.update { it.copy(isLoading = true, error = null) }
 
-        val result = authRepository.signUpWithEmailAndPassword(state.value.email, state.value.password)
+        val result =
+            authRepository.signUpWithEmail(state.value.email, state.value.password)
 
         if (result.isSuccess) {
             // Here you might want to also update the user's profile with the name
@@ -55,7 +56,8 @@ class SignUpViewModel(
 
     private fun isFormValid(): Boolean {
         val currentState = state.value
-        val isPasswordMatch = currentState.password.isNotEmpty() && currentState.password == currentState.confirmPassword
+        val isPasswordMatch =
+            currentState.password.isNotEmpty() && currentState.password == currentState.confirmPassword
         return currentState.name.isNotEmpty() &&
                 currentState.email.isNotEmpty() &&
                 isPasswordMatch &&
