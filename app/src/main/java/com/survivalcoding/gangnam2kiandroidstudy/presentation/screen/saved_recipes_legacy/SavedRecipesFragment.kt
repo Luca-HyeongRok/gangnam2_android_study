@@ -13,15 +13,16 @@ import com.survivalcoding.gangnam2kiandroidstudy.databinding.FragmentSavedRecipe
  *
  * 이 Fragment는 "저장된 레시피 목록 화면"을 담당하는 레거시 UI 컴포넌트이다.
  *
- * Activity는 이 Fragment를 담는 컨테이너 역할만 수행하고,
- * 실제 화면 구성과 UI 로직은 Fragment가 책임진다.
+ * Activity나 Compose는 이 Fragment를 "호스팅"만 하며,
+ * 실제 화면 구성과 RecyclerView 제어는 Fragment가 책임진다.
  *
- * 또한 RecyclerView 아이템 클릭에 대한
- * "최종 처리 주체" 역할도 Fragment가 담당한다.
+ *
+ * - Fragment는 Activity에 의존하지 않는다.
+ * - 클릭 이벤트는 SavedRecipesLegacyCallback을 통해 외부로 전달된다.
  */
 class SavedRecipesLegacyFragment :
     Fragment(),
-    SavedRecipeClickListener {   // Adapter 클릭 이벤트를 받기 위해 Interface 구현
+    SavedRecipeClickListener {   // Adapter 클릭 이벤트를 받기 위해 구현
 
     /**
      * ViewBinding 객체
@@ -35,12 +36,33 @@ class SavedRecipesLegacyFragment :
     private val binding get() = _binding!!
 
     /**
+     * 외부(호스트)로 클릭 이벤트를 전달하기 위한 콜백
+     *
+     * - Activity
+     * - Compose(AndroidView)
+     * - 테스트 코드
+     *
+     * 어떤 환경이든 이 콜백을 구현해서 주입할 수 있다.
+     */
+    private var callback: SavedRecipesCallback? = null
+
+    /**
+     * Fragment 생성 이후 외부에서 콜백 주입
+     *
+     * Fragment는 생성자에서 콜백을 받지 않는 것이 원칙이므로
+     * setter 방식으로 주입한다.
+     */
+    fun setCallback(callback: SavedRecipesCallback?) {
+        this.callback = callback
+    }
+
+    /**
      * Fragment의 View를 생성하는 단계
      *
-     * - XML을 inflate
+     * - XML inflate
      * - ViewBinding 초기화
      *
-     * 아직 View를 "사용"하는 단계는 아니다.
+     * 아직 RecyclerView를 직접 다루는 단계는 아니다.
      */
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -58,7 +80,7 @@ class SavedRecipesLegacyFragment :
     /**
      * View가 완전히 생성된 이후 호출되는 메서드
      *
-     * RecyclerView, Adapter, 리스너 등
+     * RecyclerView, Adapter, LayoutManager 등
      * "View를 실제로 조작하는 코드"는
      * 반드시 이 시점 이후에 작성해야 한다.
      */
@@ -68,10 +90,9 @@ class SavedRecipesLegacyFragment :
         /**
          * RecyclerView는 반드시 LayoutManager가 필요하다.
          *
-         * - 이 설정이 없으면 아이템이 보이지 않거나
+         * 이 설정이 없으면:
+         * - 아이템이 보이지 않거나
          * - 클릭 이벤트가 정상 동작하지 않을 수 있다.
-         *
-         * 여기서는 가장 기본적인 LinearLayoutManager 사용
          */
         binding.recyclerView.layoutManager =
             LinearLayoutManager(requireContext())
@@ -80,14 +101,14 @@ class SavedRecipesLegacyFragment :
          * Adapter 생성
          *
          * listener = this
-         * → 클릭 이벤트를 Fragment가 직접 받기 위함
+         * → 클릭 이벤트를 Fragment가 직접 수신
          */
         val adapter = SavedRecipesLegacyAdapter(listener = this)
         binding.recyclerView.adapter = adapter
 
         /**
          * submitList()를 사용해야 DiffUtil이 동작한다.
-         * 이 방식이 notifyDataSetChanged()의 대체이다.
+         * notifyDataSetChanged()를 직접 호출하지 않는다.
          */
         adapter.submitList(
             listOf(
@@ -101,43 +122,31 @@ class SavedRecipesLegacyFragment :
     /**
      * Adapter에서 아이템이 클릭되면 호출된다.
      *
-     * 이 메서드가 "클릭 이벤트의 최종 도착 지점"이다.
-     *
-     * Fragment는 여기서
-     * - 화면 이동
-     * - Toast
-     * - 로그
-     * 등 어떤 행동이든 자유롭게 결정할 수 있다.
+     * 이 메서드는
+     * - Fragment 내부의 최종 클릭 수신 지점이며
+     * - 실제 처리는 외부 콜백으로 위임한다.
      */
     override fun onRecipeClick(recipeTitle: String) {
         android.util.Log.d(
             "LegacyCheck",
-            "현재 Activity = ${requireActivity()::class.java.simpleName}"
+            "현재 Fragment 호스트 = ${requireActivity()::class.java.simpleName}"
         )
-        /**
-         * Fragment는 직접 Activity 전환이나
-         * 상세 화면 로직을 처리하지 않는다.
-         *
-         * 대신 자신을 담고 있는 Activity에게
-         * "이 레시피가 클릭되었다"는 사실만 전달한다.
-         *
-         * as? 캐스팅을 사용하는 이유:
-         * - 다른 Activity에 붙어 있을 가능성 대비
-         * - ClassCastException 방지
-         */
-        (activity as? SavedRecipesLegacyActivity)
-            ?.openRecipeDetail(recipeTitle)
+
+        callback?.onRecipeClick(recipeTitle)
     }
 
     /**
      * View 생명주기 종료 시점
      *
-     * Fragment 인스턴스는 남아 있을 수 있지만
-     * View는 제거되므로,
-     * binding을 null 처리하지 않으면 메모리 누수가 발생한다.
+     * - ViewBinding 해제
+     * - 콜백 참조 제거
+     *
+     * Fragment는 남아 있을 수 있으므로
+     * 반드시 View 관련 참조를 정리해야 한다.
      */
     override fun onDestroyView() {
         super.onDestroyView()
+        callback = null
         _binding = null
     }
 }
