@@ -74,7 +74,11 @@ class SavedRecipesLegacyFragment : Fragment() {
      */
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        // RecyclerView는 Adapter를 통해서만 데이터를 표시할 수 있다
+        binding.recyclerView.adapter = SavedRecipesLegacyAdapter()
     }
+
 
     /**
      * Fragment의 View가 파괴될 때 호출되는 메서드
