@@ -18,6 +18,7 @@ import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.auth.AuthVi
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.detail.RecipeDetailViewModel
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.home.HomeViewModel
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_recipes.SavedRecipesViewModel
+import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_recipes_legacy.SavedRecipesLegacyViewModel
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.search_recipe.SearchRecipeViewModel
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.splash.SplashViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -147,6 +148,12 @@ val appModule = module {
 
     viewModel {
         SavedRecipesViewModel(
+            getSavedRecipesUseCase = get(),
+            bookmarkRepository = get()
+        )
+    }
+    viewModel {
+        SavedRecipesLegacyViewModel(
             getSavedRecipesUseCase = get(),
             bookmarkRepository = get()
         )

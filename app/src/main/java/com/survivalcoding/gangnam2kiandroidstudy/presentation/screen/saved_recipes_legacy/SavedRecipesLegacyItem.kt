@@ -2,5 +2,6 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_reci
 
 data class SavedRecipesLegacyItem(
     val id: Int,
-    val title: String
+    val title: String,
+    val imageUrl: String
 )

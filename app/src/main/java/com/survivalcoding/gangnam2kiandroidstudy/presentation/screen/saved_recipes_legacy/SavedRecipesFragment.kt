@@ -5,8 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.survivalcoding.gangnam2kiandroidstudy.databinding.FragmentSavedRecipesLegacyBinding
+import kotlinx.coroutines.launch
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 /**
  * SavedRecipesLegacyFragment
@@ -45,6 +50,7 @@ class SavedRecipesLegacyFragment :
      * 어떤 환경이든 이 콜백을 구현해서 주입할 수 있다.
      */
     private var callback: SavedRecipesCallback? = null
+    private val viewModel: SavedRecipesLegacyViewModel by viewModel()
 
     /**
      * Fragment 생성 이후 외부에서 콜백 주입
@@ -107,16 +113,26 @@ class SavedRecipesLegacyFragment :
         binding.recyclerView.adapter = adapter
 
         /**
-         * submitList()를 사용해야 DiffUtil이 동작한다.
-         * notifyDataSetChanged()를 직접 호출하지 않는다.
+         * 레거시 구조에서 화면 갱신 시점과 책임을 분리하기 위해
+         * ViewModel 상태를 수집하고, Adapter에 전달한다.
          */
-        adapter.submitList(
-            listOf(
-                SavedRecipesLegacyItem(id = 1, title = "김치볶음밥"),
-                SavedRecipesLegacyItem(id = 2, title = "된장찌개"),
-                SavedRecipesLegacyItem(id = 3, title = "불고기")
-            )
-        )
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.state.collect { state ->
+                    // RecyclerView용 단순 모델로 변환해 레거시 구조를 분리한다.
+                    val items = state.recipes.map { recipe ->
+                        SavedRecipesLegacyItem(
+                            id = recipe.id,
+                            title = recipe.name,
+                            // 레거시 모델로 매핑하면서 이미지 URL까지 함께 전달한다.
+                            imageUrl = recipe.imageUrl
+                        )
+                    }
+                    // 북마크 변경 시 목록이 즉시 반영되도록 최신 리스트를 전달한다.
+                    adapter.submitList(items)
+                }
+            }
+        }
     }
 
     /**

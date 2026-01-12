@@ -1,13 +1,21 @@
 package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_recipes
 
-import android.util.Log
 import android.view.View
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
@@ -15,6 +23,8 @@ import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentContainerView
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_recipes_legacy.SavedRecipesCallback
 import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_recipes_legacy.SavedRecipesLegacyFragment
+import kotlinx.coroutines.flow.distinctUntilChanged
+import org.koin.androidx.compose.koinViewModel
 
 /**
  * SavedRecipesRoot
@@ -31,8 +41,13 @@ import com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_recip
 fun SavedRecipesRoot(
     onOpenRecipeDetail: (Int) -> Unit,
 ) {
+    // Compose 화면은 기존 ViewModel/UseCase 체계를 그대로 유지한다.
+    val viewModel: SavedRecipesViewModel = koinViewModel()
+    val state = viewModel.state.collectAsState().value
 
-    Text("Legacy")
+    val listState = rememberLazyListState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val context = LocalContext.current
 
     /**
@@ -59,19 +74,43 @@ fun SavedRecipesRoot(
      */
     val onOpenRecipeDetailState = rememberUpdatedState(onOpenRecipeDetail)
 
-    /**
-     * Fragment를 담을 실제 Android View
-     *
-     * Compose 화면 안에 FragmentContainerView를 생성한다.
-     */
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { ctx ->
-            FragmentContainerView(ctx).apply {
-                id = containerId
-            }
+    Column(modifier = Modifier.fillMaxSize()) {
+        /**
+         * Compose 화면을 유지하면서 레거시 Fragment를 함께 보여준다.
+         *
+         * 동일한 데이터 소스를 사용하므로,
+         * Compose에서 북마크 변경 시 레거시 리스트도 갱신된다.
+         */
+        Scaffold(
+            modifier = Modifier.weight(1f),
+            snackbarHost = { SnackbarHost(snackbarHostState) }
+        ) { padding ->
+            SavedRecipesScreen(
+                state = state,
+                listState = listState,
+                onRemoveBookmark = viewModel::removeBookmark,
+                onCardClick = onOpenRecipeDetail,
+                modifier = Modifier.padding(padding)
+            )
         }
-    )
+
+        /**
+         * 레거시 RecyclerView 영역
+         *
+         * FragmentContainerView를 Compose 아래에 배치해
+         * 레거시 구조를 그대로 노출한다.
+         */
+        AndroidView(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            factory = { ctx ->
+                FragmentContainerView(ctx).apply {
+                    id = containerId
+                }
+            }
+        )
+    }
 
     /**
      * Fragment attach / detach 를 관리하는 영역
@@ -112,10 +151,6 @@ fun SavedRecipesRoot(
              * recomposition 시 Fragment가 중복 생성될 수 있다.
              */
             if (fragmentManager.findFragmentById(containerId) == null) {
-                Log.d(
-                    "SavedRecipesRoot",
-                    "Hosting legacy fragment in containerId=$containerId"
-                )
                 fragmentManager.beginTransaction()
                     .setReorderingAllowed(true)
                     .replace(containerId, fragment)
@@ -139,5 +174,23 @@ fun SavedRecipesRoot(
                 }
             }
         }
+    }
+
+    LaunchedEffect(listState, state.recipes) {
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val lastVisibleIndex =
+                layoutInfo.visibleItemsInfo.lastOrNull()?.index
+
+            lastVisibleIndex == layoutInfo.totalItemsCount - 1
+        }
+            .distinctUntilChanged()
+            .collect { isAtBottom ->
+                if (isAtBottom && state.recipes.isNotEmpty()) {
+                    snackbarHostState.showSnackbar(
+                        "마지막 레시피까지 확인했습니다"
+                    )
+                }
+            }
     }
 }

@@ -5,6 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil3.load
+import com.survivalcoding.gangnam2kiandroidstudy.R
 import com.survivalcoding.gangnam2kiandroidstudy.databinding.ItemSavedRecipeLegacyBinding
 
 /**
@@ -68,6 +70,25 @@ class SavedRecipesLegacyAdapter(
 
         holder.binding.textTitle.text = item.title
 
+        /**
+         * 레거시 RecyclerView에서 이미지 로딩
+         *
+         * - Coil 3 사용
+         * - Recipe.imageUrl을 그대로 로드
+         * - placeholder / error 는 기존 drawable 재사용
+         */
+        holder.binding.imageThumbnail.setImageResource(R.drawable.food)
+        holder.binding.imageThumbnail.load(item.imageUrl) {
+            listener(
+                onStart = {
+                    holder.binding.imageThumbnail.setImageResource(R.drawable.food)
+                },
+                onError = { _, _ ->
+                    holder.binding.imageThumbnail.setImageResource(R.drawable.food)
+                }
+            )
+        }
+
         holder.itemView.setOnClickListener {
             listener.onRecipeClick(item.id, item.title)
         }
@@ -85,7 +106,6 @@ class SavedRecipesLegacyAdapter(
          * 두 아이템이 같은 아이템인지 비교
          *
          * - 고유 ID 기준 비교
-         * - 지금은 String 자체가 ID 역할
          */
         override fun areItemsTheSame(
             oldItem: SavedRecipesLegacyItem,
