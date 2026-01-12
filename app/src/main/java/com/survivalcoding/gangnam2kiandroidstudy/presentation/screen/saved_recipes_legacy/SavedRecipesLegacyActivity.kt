@@ -48,7 +48,16 @@ class SavedRecipesLegacyActivity : AppCompatActivity() {
                 .setReorderingAllowed(true)
                 .replace(
                     R.id.fragmentContainer,
-                    SavedRecipesLegacyFragment()
+                    SavedRecipesLegacyFragment().apply {
+                        setCallback(object : SavedRecipesCallback {
+                            override fun onRecipeClick(
+                                recipeId: Int,
+                                recipeTitle: String
+                            ) {
+                                openRecipeDetail(recipeId, recipeTitle)
+                            }
+                        })
+                    }
                 )
                 .commit()
         }
@@ -59,11 +68,11 @@ class SavedRecipesLegacyActivity : AppCompatActivity() {
      * Fragment는 Activity의 구현을 몰라야 하므로
      * 이동 로직은 Activity에만 존재한다.
      */
-    fun openRecipeDetail(recipeTitle: String) {
+    fun openRecipeDetail(recipeId: Int, recipeTitle: String) {
         // 지금은 구조만 보여주기 위한 로그/토스트 단계
         android.widget.Toast.makeText(
             this,
-            "Activity에서 받은 클릭: $recipeTitle",
+            "Activity에서 받은 클릭: $recipeId / $recipeTitle",
             android.widget.Toast.LENGTH_SHORT
         ).show()
     }

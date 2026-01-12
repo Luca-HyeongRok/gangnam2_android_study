@@ -21,7 +21,7 @@ import com.survivalcoding.gangnam2kiandroidstudy.databinding.ItemSavedRecipeLega
  */
 class SavedRecipesLegacyAdapter(
     private val listener: SavedRecipeClickListener
-) : ListAdapter<String, SavedRecipesLegacyAdapter.SavedRecipeViewHolder>(
+) : ListAdapter<SavedRecipesLegacyItem, SavedRecipesLegacyAdapter.SavedRecipeViewHolder>(
     DiffCallback
 ) {
 
@@ -64,12 +64,12 @@ class SavedRecipesLegacyAdapter(
         holder: SavedRecipeViewHolder,
         position: Int
     ) {
-        val title = getItem(position)
+        val item = getItem(position)
 
-        holder.binding.textTitle.text = title
+        holder.binding.textTitle.text = item.title
 
         holder.itemView.setOnClickListener {
-            listener.onRecipeClick(title)
+            listener.onRecipeClick(item.id, item.title)
         }
     }
 
@@ -79,7 +79,7 @@ class SavedRecipesLegacyAdapter(
      * RecyclerView는 이 로직을 통해
      * "어떤 아이템이 변경되었는지" 판단한다.
      */
-    companion object DiffCallback : DiffUtil.ItemCallback<String>() {
+    companion object DiffCallback : DiffUtil.ItemCallback<SavedRecipesLegacyItem>() {
 
         /**
          * 두 아이템이 같은 아이템인지 비교
@@ -88,10 +88,10 @@ class SavedRecipesLegacyAdapter(
          * - 지금은 String 자체가 ID 역할
          */
         override fun areItemsTheSame(
-            oldItem: String,
-            newItem: String
+            oldItem: SavedRecipesLegacyItem,
+            newItem: SavedRecipesLegacyItem
         ): Boolean {
-            return oldItem == newItem
+            return oldItem.id == newItem.id
         }
 
         /**
@@ -100,8 +100,8 @@ class SavedRecipesLegacyAdapter(
          * - UI를 다시 그릴 필요가 있는지 판단
          */
         override fun areContentsTheSame(
-            oldItem: String,
-            newItem: String
+            oldItem: SavedRecipesLegacyItem,
+            newItem: SavedRecipesLegacyItem
         ): Boolean {
             return oldItem == newItem
         }

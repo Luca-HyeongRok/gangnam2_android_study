@@ -12,5 +12,5 @@ package com.survivalcoding.gangnam2kiandroidstudy.presentation.screen.saved_reci
  * 호스트를 교체할 수 있도록 분리된 인터페이스
  */
 interface SavedRecipesCallback {
-    fun onRecipeClick(recipeTitle: String)
+    fun onRecipeClick(recipeId: Int, recipeTitle: String)
 }

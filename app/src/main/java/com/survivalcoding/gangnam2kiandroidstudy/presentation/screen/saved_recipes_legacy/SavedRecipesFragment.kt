@@ -112,9 +112,9 @@ class SavedRecipesLegacyFragment :
          */
         adapter.submitList(
             listOf(
-                "김치볶음밥",
-                "된장찌개",
-                "불고기"
+                SavedRecipesLegacyItem(id = 1, title = "김치볶음밥"),
+                SavedRecipesLegacyItem(id = 2, title = "된장찌개"),
+                SavedRecipesLegacyItem(id = 3, title = "불고기")
             )
         )
     }
@@ -126,13 +126,13 @@ class SavedRecipesLegacyFragment :
      * - Fragment 내부의 최종 클릭 수신 지점이며
      * - 실제 처리는 외부 콜백으로 위임한다.
      */
-    override fun onRecipeClick(recipeTitle: String) {
+    override fun onRecipeClick(recipeId: Int, recipeTitle: String) {
         android.util.Log.d(
             "LegacyCheck",
             "현재 Fragment 호스트 = ${requireActivity()::class.java.simpleName}"
         )
 
-        callback?.onRecipeClick(recipeTitle)
+        callback?.onRecipeClick(recipeId, recipeTitle)
     }
 
     /**

@@ -14,7 +14,8 @@ interface SavedRecipeClickListener {
     /**
      * RecyclerView 아이템이 클릭되는 순간 호출된다.
      *
-     * @param recipeTitle 클릭된 아이템의 데이터
+     * @param recipeId 클릭된 레시피의 ID
+     * @param recipeTitle 클릭된 레시피의 제목
      */
-    fun onRecipeClick(recipeTitle: String)
+    fun onRecipeClick(recipeId: Int, recipeTitle: String)
 }
