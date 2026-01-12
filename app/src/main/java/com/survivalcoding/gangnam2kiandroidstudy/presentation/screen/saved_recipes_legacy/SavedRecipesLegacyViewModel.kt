@@ -20,24 +20,29 @@ class SavedRecipesLegacyViewModel(
     val state: StateFlow<SavedRecipesLegacyState> = _state.asStateFlow()
 
     init {
-        loadSavedRecipes()
+        observeSavedRecipes()
     }
 
-    fun loadSavedRecipes() {
+    /**
+     * 북마크된 레시피 Flow를 단 한 번만 수집한다.
+     *
+     * - ViewModel 생명주기 동안 유지
+     * - 재호출로 인한 다중 collect 방지
+     */
+    private fun observeSavedRecipes() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true) }
 
-            // Compose/Legacy가 동일한 BookmarkRepository를 공유하므로,
-            // Compose에서 북마크가 변경되면 이 Flow가 자동으로 갱신된다.
-            getSavedRecipesUseCase.execute().collectLatest { result ->
-                val recipes = result.getOrElse { emptyList() }
-                _state.update {
-                    it.copy(
-                        isLoading = false,
-                        recipes = recipes
-                    )
+            getSavedRecipesUseCase.execute()
+                .collectLatest { result ->
+                    val recipes = result.getOrElse { emptyList() }
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            recipes = recipes
+                        )
+                    }
                 }
-            }
         }
     }
 

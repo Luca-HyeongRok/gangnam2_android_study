@@ -43,13 +43,19 @@ fun SignUpScreen(
     val focusManager = LocalFocusManager.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val isPasswordMatch = state.password.isNotEmpty() && state.password == state.confirmPassword
-    val isFormValid = state.name.isNotEmpty() &&
-            state.email.isNotEmpty() &&
-            isPasswordMatch &&
-            state.acceptTerms
+    val isPasswordMatch =
+        state.password.isNotEmpty() && state.password == state.confirmPassword
 
-    LaunchedEffect(viewModel.action) {
+    val isFormValid =
+        state.name.isNotEmpty() &&
+                state.email.isNotEmpty() &&
+                isPasswordMatch &&
+                state.acceptTerms
+
+    /**
+     * 이벤트 Flow는 Unit 키로 한 번만 수집
+     */
+    LaunchedEffect(Unit) {
         viewModel.action.collectLatest { action ->
             when (action) {
                 is SignUpAction.NavigateToMain -> onSignUpSuccess()
@@ -63,7 +69,6 @@ fun SignUpScreen(
             snackbarHostState.showSnackbar(it)
         }
     }
-
 
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
@@ -116,6 +121,7 @@ fun SignUpScreen(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         )
                     ) { viewModel.onEvent(SignUpEvent.OnNameChanged(it)) }
+
                     Spacer(modifier = Modifier.height(20.dp))
 
                     InputField(
@@ -130,6 +136,7 @@ fun SignUpScreen(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         )
                     ) { viewModel.onEvent(SignUpEvent.OnEmailChanged(it)) }
+
                     Spacer(modifier = Modifier.height(20.dp))
 
                     InputField(
@@ -145,6 +152,7 @@ fun SignUpScreen(
                         ),
                         visualTransformation = PasswordVisualTransformation(),
                     ) { viewModel.onEvent(SignUpEvent.OnPasswordChanged(it)) }
+
                     Spacer(modifier = Modifier.height(20.dp))
 
                     InputField(
@@ -168,18 +176,24 @@ fun SignUpScreen(
                             .fillMaxWidth()
                             .toggleable(
                                 value = state.acceptTerms,
-                                onValueChange = { viewModel.onEvent(SignUpEvent.OnAcceptTermsChanged(it)) }
+                                onValueChange = {
+                                    viewModel.onEvent(SignUpEvent.OnAcceptTermsChanged(it))
+                                }
                             ),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Checkbox(
                             checked = state.acceptTerms,
-                            onCheckedChange = { viewModel.onEvent(SignUpEvent.OnAcceptTermsChanged(it)) }
+                            onCheckedChange = {
+                                viewModel.onEvent(SignUpEvent.OnAcceptTermsChanged(it))
+                            }
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
                             text = "Accept terms & conditions",
-                            style = AppTextStyles.smallTextRegular.copy(color = AppColors.secondary100)
+                            style = AppTextStyles.smallTextRegular.copy(
+                                color = AppColors.secondary100
+                            )
                         )
                     }
 
@@ -229,8 +243,11 @@ fun SignUpScreen(
                             }
                         },
                         style = AppTextStyles.smallerTextBold,
-                        modifier = Modifier.clickable { viewModel.navigateToLogin() }
+                        modifier = Modifier.clickable {
+                            viewModel.navigateToLogin()
+                        }
                     )
+
                     Spacer(modifier = Modifier.height(30.dp))
                 }
             }

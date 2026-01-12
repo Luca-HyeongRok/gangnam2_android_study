@@ -67,11 +67,12 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-/*
-* Compose + ViewBinding을 동시에 사용하는 설정
-* - Compose: 신규 화면
-* - ViewBinding: 레거시 Fragment
-*/
+
+    /*
+     * Compose + ViewBinding을 동시에 사용하는 설정
+     * - Compose: 신규 화면
+     * - ViewBinding: 레거시 Fragment
+     */
     buildFeatures {
         compose = true
         viewBinding = true
@@ -93,13 +94,13 @@ dependencies {
 
     /* ---------------- Firebase ---------------- */
 
-    implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation(platform("com.google.firebase:firebase-bom:34.7.0"))
+    implementation("com.google.firebase:firebase-auth")
 
     /* -------- Credential Manager (Google Login) -------- */
 
-    implementation("androidx.credentials:credentials:1.2.2")
-    implementation("androidx.credentials:credentials-play-services-auth:1.2.2")
+    implementation("androidx.credentials:credentials:1.5.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.5.0")
 
     /* ---------------- AndroidX Core ---------------- */
 

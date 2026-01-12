@@ -31,11 +31,17 @@ import org.koin.androidx.compose.koinViewModel
  *
  * Compose 기반 SavedRecipes 탭의 진입점.
  *
- * 기존 Compose 화면(SavedRecipesScreen)을 제거하고,
- * 레거시 Fragment(SavedRecipesLegacyFragment)를
- * AndroidView + FragmentContainerView를 통해 직접 호스팅한다.
+ * 이 화면은 **Compose UI(SavedRecipesScreen)** 와
+ * **레거시 Fragment(SavedRecipesLegacyFragment)** 를
+ * 동시에 노출하는 하이브리드 구조이다.
  *
- *  Navigation/MainRoot 구조는 그대로 유지된다.
+ * - 상단: Compose 기반 SavedRecipesScreen
+ * - 하단: AndroidView + FragmentContainerView를 통한 레거시 RecyclerView
+ *
+ * 두 화면은 동일한 ViewModel / Repository를 공유하므로,
+ * 한쪽에서 북마크 변경 시 다른 쪽도 자동으로 갱신된다.
+ *
+ * Navigation / MainRoot 구조는 그대로 유지된다.
  */
 @Composable
 fun SavedRecipesRoot(
@@ -75,11 +81,9 @@ fun SavedRecipesRoot(
     val onOpenRecipeDetailState = rememberUpdatedState(onOpenRecipeDetail)
 
     Column(modifier = Modifier.fillMaxSize()) {
+
         /**
-         * Compose 화면을 유지하면서 레거시 Fragment를 함께 보여준다.
-         *
-         * 동일한 데이터 소스를 사용하므로,
-         * Compose에서 북마크 변경 시 레거시 리스트도 갱신된다.
+         * Compose 기반 SavedRecipesScreen 영역
          */
         Scaffold(
             modifier = Modifier.weight(1f),
@@ -97,8 +101,8 @@ fun SavedRecipesRoot(
         /**
          * 레거시 RecyclerView 영역
          *
-         * FragmentContainerView를 Compose 아래에 배치해
-         * 레거시 구조를 그대로 노출한다.
+         * FragmentContainerView를 Compose 하단에 배치하여
+         * 기존 Fragment + RecyclerView 구조를 그대로 노출한다.
          */
         AndroidView(
             modifier = Modifier
@@ -113,43 +117,29 @@ fun SavedRecipesRoot(
     }
 
     /**
-     * Fragment attach / detach 를 관리하는 영역
+     * Fragment attach / detach 관리
      *
      * DisposableEffect는
-     * - 처음 진입 시 Fragment를 붙이고
-     * - Composable이 제거될 때 Fragment를 정리한다.
+     * - 최초 진입 시 Fragment를 attach
+     * - Composable 제거 시 Fragment를 detach 한다.
      */
     DisposableEffect(activity, containerId, fragment) {
 
-        /**
-         * FragmentActivity가 아닌 경우*
-         *  아무 것도 하지 않고 onDispose만 반환
-         */
         if (activity == null) {
             onDispose { }
         } else {
 
             /**
-             * 레거시 Fragment → Compose 로 이벤트를 전달하기 위한 콜백 주입
-             *
-             * 레거시 Fragment는 Activity에 의존하지 않고
-             * Callback 인터페이스만 통해 상위로 이벤트를 전달한다.
+             * 레거시 Fragment → Compose 로 이벤트 전달용 콜백 주입
              */
             fragment.setCallback(object : SavedRecipesCallback {
                 override fun onRecipeClick(recipeId: Int, recipeTitle: String) {
-                    // Compose Navigation으로 상세 화면 이동
                     onOpenRecipeDetailState.value(recipeId)
                 }
             })
 
             val fragmentManager = activity.supportFragmentManager
 
-            /**
-             * Fragment가 아직 붙어있지 않다면 attach
-             *
-             * findFragmentById 체크를 하지 않으면
-             * recomposition 시 Fragment가 중복 생성될 수 있다.
-             */
             if (fragmentManager.findFragmentById(containerId) == null) {
                 fragmentManager.beginTransaction()
                     .setReorderingAllowed(true)
@@ -157,25 +147,21 @@ fun SavedRecipesRoot(
                     .commit()
             }
 
-            /**
-             * Composable이 화면에서 제거될 때 호출
-             *
-             * - 콜백 해제
-             * - Fragment 제거
-             */
             onDispose {
                 fragment.setCallback(null)
 
-                val existing = fragmentManager.findFragmentById(containerId)
-                if (existing != null) {
+                fragmentManager.findFragmentById(containerId)?.let {
                     fragmentManager.beginTransaction()
-                        .remove(existing)
+                        .remove(it)
                         .commit()
                 }
             }
         }
     }
 
+    /**
+     * 리스트 하단 도달 시 Snackbar 표시
+     */
     LaunchedEffect(listState, state.recipes) {
         snapshotFlow {
             val layoutInfo = listState.layoutInfo

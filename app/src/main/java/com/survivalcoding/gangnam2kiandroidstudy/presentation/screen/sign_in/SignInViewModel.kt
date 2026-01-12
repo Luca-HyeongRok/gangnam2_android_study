@@ -48,12 +48,6 @@ class SignInViewModel(
 
     /**
      * 이메일 / 비밀번호 로그인
-     *
-     * Firebase Auth 연동 전 임시 로그인 로직 포함
-     * 테스트 계정:
-     *   email: test@test.com
-     *   password: 1234
-     * DEBUG 빌드에서만 허용
      */
     private fun signInWithEmail() {
         val email = state.value.email.trim()
@@ -70,26 +64,26 @@ class SignInViewModel(
         viewModelScope.launch {
             _state.update { it.copy(isLoading = true, error = null) }
 
-            /* ---------------- 임시 로그인 분기 ---------------- */
+            /* ---------------- DEBUG 임시 로그인 ---------------- */
             if (BuildConfig.DEBUG && email == "test@test.com" && password == "1234") {
-                _state.update { it.copy(isLoading = false) }
-
                 AuthStateHolder.forceAuthenticatedForDebug()
 
+                _state.update { it.copy(isLoading = false) }
+                _event.emit(SignInEvent.NavigateToHome)
                 return@launch
             }
             /* -------------------------------------------------- */
 
-            // 실제 Firebase 로그인 (현재는 실패해도 무방)
             val result = authRepository.signInWithEmail(email, password)
 
             result
                 .onSuccess {
+                    _state.update { it.copy(isLoading = false) }
                     _event.emit(SignInEvent.NavigateToHome)
                 }
                 .onFailure { throwable ->
-                    _state.update { state ->
-                        state.copy(
+                    _state.update {
+                        it.copy(
                             isLoading = false,
                             error = throwable.message ?: "로그인에 실패했습니다."
                         )
@@ -99,8 +93,7 @@ class SignInViewModel(
     }
 
     /**
-     * Google 로그인 (CredentialManager → idToken)
-     * 현재 Firebase 문제로 인해 실제 사용은 보류 가능
+     * Google 로그인
      */
     fun signInWithGoogle(idToken: String) {
         viewModelScope.launch {
@@ -110,17 +103,17 @@ class SignInViewModel(
 
             result
                 .onSuccess {
+                    _state.update { it.copy(isLoading = false) }
                     _event.emit(SignInEvent.NavigateToHome)
                 }
                 .onFailure { throwable ->
+                    _state.update { it.copy(isLoading = false) }
                     _event.emit(
                         SignInEvent.ShowError(
                             throwable.message ?: "Google 로그인에 실패했습니다."
                         )
                     )
                 }
-
-            _state.update { it.copy(isLoading = false) }
         }
     }
 
